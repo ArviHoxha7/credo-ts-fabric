@@ -663,6 +663,31 @@ importers:
         specifier: 'catalog:'
         version: 5.8.3
 
+  packages/fabric-vdr:
+    dependencies:
+      '@credo-ts/core':
+        specifier: workspace:*
+        version: link:../core
+      class-transformer:
+        specifier: 'catalog:'
+        version: 0.5.1
+      class-validator:
+        specifier: 'catalog:'
+        version: 0.14.1
+      rxjs:
+        specifier: 'catalog:'
+        version: 7.8.2
+      tsyringe:
+        specifier: 'catalog:'
+        version: 4.10.0
+    devDependencies:
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.0.1
+      typescript:
+        specifier: 'catalog:'
+        version: 5.8.3
+
   packages/indy-sdk-to-askar-migration:
     dependencies:
       '@credo-ts/anoncreds':

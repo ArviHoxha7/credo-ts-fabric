@@ -1,0 +1,32 @@
+{
+  "name": "@credo-ts/fabric-vdr",
+  "main": "src/index",
+  "types": "src/index",
+  "version": "0.1.0",
+  "files": ["build"],
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "main": "build/index",
+    "types": "build/index",
+    "access": "public"
+  },
+  "scripts": {
+    "build": "pnpm run clean && pnpm run compile",
+    "clean": "rimraf ./build",
+    "compile": "tsc -p tsconfig.build.json",
+    "prepublishOnly": "pnpm run build",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@credo-ts/core": "workspace:*",
+    "class-transformer": "catalog:",
+    "class-validator": "catalog:",
+    "tsyringe": "catalog:",
+    "rxjs": "catalog:"
+  },
+  "devDependencies": {
+    "rimraf": "catalog:",
+    "typescript": "catalog:"
+  }
+}
+
