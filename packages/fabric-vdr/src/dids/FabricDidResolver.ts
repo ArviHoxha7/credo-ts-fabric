@@ -1,49 +1,26 @@
-import type { AgentContext, DidResolutionResult, DidResolver, ParsedDid } from '@credo-ts/core'
-import { DidDocument, JsonTransformer, injectable } from '@credo-ts/core'
-
+import { injectable, inject } from '@credo-ts/core'
+import type { AgentContext, DidResolver, DidResolutionResult } from '@credo-ts/core'
 import { FabricLedgerService } from '../ledger/FabricLedgerService'
 
 @injectable()
 export class FabricDidResolver implements DidResolver {
   public readonly supportedMethods = ['testnet']
   public readonly allowsCaching = true
-  public readonly allowsLocalDidRecord = true
 
-  public async resolve(agentContext: AgentContext, didUrl: string, parsed: ParsedDid): Promise<DidResolutionResult> {
-    const fabricLedgerService = agentContext.dependencyManager.resolve(FabricLedgerService)
-    const did = parsed.did
+  public constructor(
+    @inject(FabricLedgerService) private ledgerService: FabricLedgerService
+  ) {}
 
-    try {
-      const { didDocument: jsonDoc } = await fabricLedgerService.getDidDocument(agentContext, did)
-
-      if (!jsonDoc) {
-        return {
-          didDocument: null,
-          didDocumentMetadata: {},
-          didResolutionMetadata: {
-            error: 'notFound',
-            message: `DID not found: ${did}`,
-          },
-        }
-      }
-
-      const didDocument = JsonTransformer.fromJSON(jsonDoc, DidDocument)
-
-      return {
-        didDocument,
-        didDocumentMetadata: {},
-        didResolutionMetadata: {},
-      }
-    } catch (error) {
-      return {
-        didDocument: null,
-        didDocumentMetadata: {},
-        didResolutionMetadata: {
-          error: 'notFound',
-          message: `Fabric resolution error: ${(error as Error).message}`,
-        },
-      }
-    }
+  /**
+   * Resolve a DID on the Fabric network.
+   * Delegates to GET /ReadTransaction/:id/nym, then wraps the response
+   * as a W3C DID Document.
+   */
+  public async resolve(
+    agentContext: AgentContext,
+    did: string
+  ): Promise<DidResolutionResult> {
+    return this.ledgerService.getDidDocument(agentContext, did)
   }
 }
 

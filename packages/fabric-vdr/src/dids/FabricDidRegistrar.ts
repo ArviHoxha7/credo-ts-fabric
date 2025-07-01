@@ -1,88 +1,64 @@
+import { injectable, inject } from '@credo-ts/core'
 import type {
   AgentContext,
+  DidRegistrar,
   DidCreateOptions,
   DidCreateResult,
-  DidRegistrar,
+  DidUpdateOptions,
+  DidUpdateResult,
+  DidDeactivateResult,
 } from '@credo-ts/core'
-
-import { injectable } from '@credo-ts/core'
-import { DidDocumentBuilder } from '@credo-ts/core'
-
+import { FabricLedgerService } from '../ledger/FabricLedgerService'
 
 @injectable()
 export class FabricDidRegistrar implements DidRegistrar {
   public readonly supportedMethods = ['testnet']
 
-  public async create(agentContext: AgentContext, options: DidCreateOptions): Promise<DidCreateResult> {
-    const opts = (options as any).options ?? {}
-    const methodSpecificId: string | undefined = opts.methodSpecificId
-    const verkey: string | undefined = opts.verkey
-    const network = opts.network ?? 'testnet'
+  public constructor(
+    @inject(FabricLedgerService) private ledgerService: FabricLedgerService
+  ) {}
 
-    if (!methodSpecificId || !verkey) {
-      return {
-        didDocumentMetadata: {},
-        didRegistrationMetadata: {},
-        didState: {
-          state: 'failed',
-          reason: 'Missing methodSpecificId or verkey',
-        },
-      }
-    }
-
-    const did = `did:${network}:${methodSpecificId}`
-
-    try {
-
-      const didDoc = new DidDocumentBuilder(did)
-        .addVerificationMethod({
-          id: `${did}#key-1`,
-          type: 'Ed25519VerificationKey2018',
-          controller: did,
-          publicKeyBase58: verkey,
-        })
-        .addAuthentication(`${did}#key-1`)
-        .build()
-
-      return {
-        didState: {
-          state: 'finished',
-          did,
-          secret: { verkey },
-          didDocument: didDoc,
-        },
-        didDocumentMetadata: {},
-        didRegistrationMetadata: {},
-      }
-    } catch (error) {
-      return {
-        didState: {
-          state: 'failed',
-          reason: `Fabric create error: ${(error as Error).message}`,
-        },
-        didDocumentMetadata: {},
-        didRegistrationMetadata: {},
-      }
-    }
+  /**
+   * Register a new DID on the Fabric network.
+   * Delegates to POST /CreateTransaction with body:
+   * {
+   *   transaction: {
+   *     operation: { dest, verkey, role: 'TRUST_ANCHOR' }
+   *   },
+   *   type: 'nym',
+   *   network: 'testnet'
+   * }
+   */
+  public async create(
+    agentContext: AgentContext,
+    options: DidCreateOptions
+  ): Promise<DidCreateResult> {
+    return this.ledgerService.createDid(agentContext, options)
   }
 
-  public async update(): Promise<DidCreateResult> {
+  /**
+   * Update operation not supported for now.
+   */
+  public async update(
+    agentContext: AgentContext,
+    options: DidUpdateOptions
+  ): Promise<DidUpdateResult> {
     return {
-      didState: {
-        state: 'failed',
-        reason: 'Update not supported',
-      },
+      didState: { state: 'failed', reason: 'Update not supported' },
       didDocumentMetadata: {},
       didRegistrationMetadata: {},
     }
   }
 
-  public async deactivate(): Promise<DidCreateResult> {
+  /**
+   * Deactivate operation not supported for now.
+   */
+  public async deactivate(
+    agentContext: AgentContext,
+    options: unknown
+  ): Promise<DidDeactivateResult> {
     return {
-      didState: {
-        state: 'failed',
-        reason: 'Deactivate not supported',
-      },
+      didState: { state: 'failed', reason: 'Deactivate not supported' },
       didDocumentMetadata: {},
       didRegistrationMetadata: {},
     }
