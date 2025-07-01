@@ -3,7 +3,9 @@
   "main": "src/index",
   "types": "src/index",
   "version": "0.1.0",
-  "files": ["build"],
+  "files": [
+    "build"
+  ],
   "license": "Apache-2.0",
   "publishConfig": {
     "main": "build/index",
@@ -19,14 +21,14 @@
   },
   "dependencies": {
     "@credo-ts/core": "workspace:*",
+    "axios": "^1.10.0",
     "class-transformer": "catalog:",
     "class-validator": "catalog:",
-    "tsyringe": "catalog:",
-    "rxjs": "catalog:"
+    "rxjs": "catalog:",
+    "tsyringe": "catalog:"
   },
   "devDependencies": {
     "rimraf": "catalog:",
     "typescript": "catalog:"
   }
 }
-
