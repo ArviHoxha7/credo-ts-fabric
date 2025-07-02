@@ -1,5 +1,6 @@
 // demo.ts
 import { BaseAgent } from './BaseAgent'
+import { DidResolverService } from '@credo-ts/core'
 
 async function run() {
   // 1) Create & initialize the agent
@@ -14,10 +15,12 @@ async function run() {
       verkey: 'DemoVerkey123',
     },
   })
-  console.log('DID created:', didState.did)
-
+  const did1 = didState.did!
+  console.log('DID created:', did1)
+  const didResolverService = base.agent.dependencyManager.resolve(DidResolverService)
+  console.log('Supported DID methods (Resolver):', didResolverService.supportedMethods)
   // 3) Resolve the same DID
-  const resolved = await base.agent.dids.resolve(didState.did!)
+  const resolved = await base.agent.dids.resolve(did1)
   console.log('Resolved DID Document:', resolved.didDocument)
 }
 

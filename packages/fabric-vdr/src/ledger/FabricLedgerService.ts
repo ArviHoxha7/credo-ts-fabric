@@ -31,18 +31,23 @@ export class FabricLedgerService {
     try {
       const parts = did.split(':')
       const networkName = parts[1]
-      const methodSpecificId = parts[2]
       const networkConfig = this.config.networks.find(n => n.network === networkName)
       if (!networkConfig) throw new Error(`Network config not found for '${networkName}'`)
       const { baseUrl, token } = networkConfig
 
+      console.log('[FabricLedgerService] Resolving DID:', did)
       const res = await fetch(
-        `${baseUrl}/ReadTransaction/${methodSpecificId}/nym`,
-        { headers: { Authorization: token ?? 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZWxlY3RlZF9wZWVyIjoiMSJ9.eq_bDmbzklvvl8u4QhzGiGNQRsRhsd7GQEOD5IL0tf4' } }
+        `${baseUrl}/ReadTransaction/${encodeURIComponent(did)}/nym`,
+        {
+          headers: {
+            Authorization: token ?? '',
+          },
+        }
       )
       if (!res.ok) throw new Error(`Ledger returned ${res.status}`)
 
       const json = (await res.json()) as ReadResponse
+      console.log('[FabricLedgerService] ReadTransaction response:', json)
       const { verkey } = json.result
 
       const didDoc = JsonTransformer.fromJSON(
@@ -108,8 +113,8 @@ export class FabricLedgerService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZWxlY3RlZF9wZWVyIjoiMSJ9.eq_bDmbzklvvl8u4QhzGiGNQRsRhsd7GQEOD5IL0tf4',
-          // Authorization: token ?? '',
+          // 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZWxlY3RlZF9wZWVyIjoiMSJ9.eq_bDmbzklvvl8u4QhzGiGNQRsRhsd7GQEOD5IL0tf4',
+          Authorization: token ?? '',
         },
         body: JSON.stringify(payload),
       })
