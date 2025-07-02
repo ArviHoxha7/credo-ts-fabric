@@ -3,6 +3,7 @@ import { AskarModule, AskarModuleConfigOptions } from '@credo-ts/askar'
 import { askar } from '@openwallet-foundation/askar-nodejs'
 import { agentDependencies } from '@credo-ts/node'
 import { FabricModule } from '@credo-ts/fabric-vdr'
+import { FabricDidRegistrar, FabricDidResolver } from '@credo-ts/fabric-vdr'
 
 export class BaseAgent {
   public agent: Agent
@@ -30,7 +31,10 @@ export class BaseAgent {
       dependencies: agentDependencies,
       modules: {
         askar: new AskarModule(askarConfig),
-        dids: new DidsModule(),
+        dids: new DidsModule({
+          registrars: [ new FabricDidRegistrar() ],
+          resolvers: [ new FabricDidResolver() ],
+        }),
         fabric,
       },
     })

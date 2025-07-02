@@ -12,28 +12,14 @@ import { FabricLedgerService } from '../ledger/FabricLedgerService'
 
 @injectable()
 export class FabricDidRegistrar implements DidRegistrar {
-  public readonly supportedMethods = ['testnet']
+  public readonly supportedMethods = ['fabric']
 
-  public constructor(
-    @inject(FabricLedgerService) private ledgerService: FabricLedgerService
-  ) {}
-
-  /**
-   * Register a new DID on the Fabric network.
-   * Delegates to POST /CreateTransaction with body:
-   * {
-   *   transaction: {
-   *     operation: { dest, verkey, role: 'TRUST_ANCHOR' }
-   *   },
-   *   type: 'nym',
-   *   network: 'testnet'
-   * }
-   */
   public async create(
     agentContext: AgentContext,
     options: DidCreateOptions
   ): Promise<DidCreateResult> {
-    return this.ledgerService.createDid(agentContext, options)
+    const ledgerService = agentContext.dependencyManager.resolve(FabricLedgerService)
+    return ledgerService.createDid(agentContext, options)
   }
 
   /**

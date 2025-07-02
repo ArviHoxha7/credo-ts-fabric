@@ -4,23 +4,15 @@ import { FabricLedgerService } from '../ledger/FabricLedgerService'
 
 @injectable()
 export class FabricDidResolver implements DidResolver {
-  public readonly supportedMethods = ['testnet']
+  public readonly supportedMethods = ['fabric']
   public readonly allowsCaching = true
 
-  public constructor(
-    @inject(FabricLedgerService) private ledgerService: FabricLedgerService
-  ) {}
-
-  /**
-   * Resolve a DID on the Fabric network.
-   * Delegates to GET /ReadTransaction/:id/nym, then wraps the response
-   * as a W3C DID Document.
-   */
   public async resolve(
     agentContext: AgentContext,
     did: string
   ): Promise<DidResolutionResult> {
-    return this.ledgerService.getDidDocument(agentContext, did)
+    const ledgerService = agentContext.dependencyManager.resolve(FabricLedgerService)
+    return ledgerService.getDidDocument(agentContext, did)
   }
 }
 

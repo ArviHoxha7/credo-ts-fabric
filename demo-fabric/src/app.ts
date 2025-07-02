@@ -8,7 +8,7 @@ async function run() {
 
   // 2) Create a DID on Fabric
   const { didState } = await base.agent.dids.create({
-    method: 'testnet',
+    method: 'fabric',
     options: {
       methodSpecificId: 'demo123',
       verkey: 'DemoVerkey123',

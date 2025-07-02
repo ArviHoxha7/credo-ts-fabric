@@ -38,7 +38,7 @@ export class FabricLedgerService {
 
       const res = await fetch(
         `${baseUrl}/ReadTransaction/${methodSpecificId}/nym`,
-        { headers: { Authorization: token ?? '' } }
+        { headers: { Authorization: token ?? 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZWxlY3RlZF9wZWVyIjoiMSJ9.eq_bDmbzklvvl8u4QhzGiGNQRsRhsd7GQEOD5IL0tf4' } }
       )
       if (!res.ok) throw new Error(`Ledger returned ${res.status}`)
 
@@ -82,6 +82,7 @@ export class FabricLedgerService {
     options: DidCreateOptions
   ): Promise<DidCreateResult> {
     try {
+      console.log('Creating DID on Fabric with options:', options)
       const opts = (options as any).options ?? {}
       const methodSpecificId: string | undefined = opts.methodSpecificId
       const verkey: string | undefined = opts.verkey
@@ -107,10 +108,12 @@ export class FabricLedgerService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: token ?? '',
+          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZWxlY3RlZF9wZWVyIjoiMSJ9.eq_bDmbzklvvl8u4QhzGiGNQRsRhsd7GQEOD5IL0tf4',
+          // Authorization: token ?? '',
         },
         body: JSON.stringify(payload),
       })
+      console.log('[FabricLedgerService] POST /CreateTransaction returned', await res.json())
       if (!res.ok) throw new Error(`Ledger returned ${res.status}`)
 
       const didDoc = JsonTransformer.fromJSON(
@@ -131,7 +134,12 @@ export class FabricLedgerService {
       )
 
       return {
-        didState: { state: 'finished', did, secret: { verkey }, didDocument: didDoc },
+        didState: {
+          state: 'finished', 
+          did, 
+          secret: { verkey }, 
+          didDocument: didDoc 
+         },
         didDocumentMetadata: {},
         didRegistrationMetadata: {},
       }
