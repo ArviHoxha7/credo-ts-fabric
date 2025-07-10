@@ -1,6 +1,7 @@
 // demo.ts
 import { BaseAgent } from './BaseAgent'
 import { DidResolverService } from '@credo-ts/core'
+import { FabricLedgerService } from '@credo-ts/fabric-vdr'
 
 async function run() {
   // 1) Create & initialize the agent
@@ -17,11 +18,15 @@ async function run() {
   })
   const did1 = didState.did!
   console.log('DID created:', did1)
-  const didResolverService = base.agent.dependencyManager.resolve(DidResolverService)
-  console.log('Supported DID methods (Resolver):', didResolverService.supportedMethods)
   // 3) Resolve the same DID
   const resolved = await base.agent.dids.resolve(did1)
   console.log('Resolved DID Document:', resolved.didDocument)
+
+  // 4) Delete the DID using FabricLedgerService
+  const fabricLedgerService = base.agent.dependencyManager.resolve(FabricLedgerService)
+  const deleteResult = await fabricLedgerService.deleteDid(did1)
+  console.log('🗑️ Delete result:', deleteResult)
+
 }
 
 run().catch(console.error)

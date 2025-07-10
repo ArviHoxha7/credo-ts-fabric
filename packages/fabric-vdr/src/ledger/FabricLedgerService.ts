@@ -157,11 +157,86 @@ export class FabricLedgerService {
       }
     }
   }
+  
+    public async deleteDid(did: string): Promise<{ success: boolean }> {
+    try {
+      const networkName = this.config.networks[0].network
+      const networkConfig = this.config.networks.find(n => n.network === networkName)
+      if (!networkConfig) throw new Error(`Network config not found for '${networkName}'`)
+      const { baseUrl, token } = networkConfig
 
-  // Optional: schema & credential definition methods
-  public async registerSchema(schema: any): Promise<{ success: boolean; id: string }> {
-    // Implement similar to createDid with type: 'schema'
-    throw new Error('Not implemented')
+      const url = `${baseUrl}/DeleteTransaction/${encodeURIComponent(did)}`
+
+      const res = await fetch(url, {
+        method: 'DELETE',
+        headers: {
+          Authorization: token ?? '',
+        },
+      })
+
+      const resText = await res.text()
+      console.log('[FabricLedgerService] DELETE /DeleteTransaction returned:', res.status, resText)
+
+      if (!res.ok) throw new Error(`Ledger returned ${res.status}: ${resText}`)
+
+      return { success: true }
+    } catch (error) {
+      this.logger.error('Failed to delete DID from Fabric:', error)
+      return { success: false }
+    }
+  }
+
+  public async registerSchema(schema: {
+    name: string
+    version: string
+    attributes: string[]
+    issuerDid: string
+  }): Promise<{ success: boolean; id: string }> {
+    try {
+      const { name, version, attributes, issuerDid } = schema
+
+      const networkName = this.config.networks[0].network
+      const networkConfig = this.config.networks.find(n => n.network === networkName)
+      if (!networkConfig) throw new Error(`Network config not found for '${networkName}'`)
+      const { baseUrl, token } = networkConfig
+
+      const payload = {
+        transaction: {
+          identifier: issuerDid,
+          operation: {
+            data: {
+              name,
+              version,
+              attrNames: attributes,
+            },
+          },
+        },
+        type: 'schema',
+        network: networkName,
+      }
+
+      const res = await fetch(`${baseUrl}/CreateTransaction`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token ?? '',
+        },
+        body: JSON.stringify(payload),
+      })
+
+      const resBody = await res.json()
+      console.log('[FabricLedgerService] POST /CreateTransaction (schema) returned', resBody)
+
+      if (!res.ok) throw new Error(`Ledger returned ${res.status}`)
+
+      // Construct schema ID as stored in the ledger (chaincode logic)
+      const schemaId = `${issuerDid}:2:${name}:${version}`
+
+      return { success: true, id: schemaId }
+    } catch (error) {
+      this.logger.error('Failed to register schema on Fabric:', error)
+      return { success: false, id: '' }
+    }
   }
 
   public async registerCredentialDefinition(
