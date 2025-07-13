@@ -5,7 +5,7 @@ import { FabricLedgerService } from '../ledger/FabricLedgerService'
 @injectable()
 export class FabricDidResolver implements DidResolver {
   public readonly supportedMethods = ['fabric', 'testnet']
-  public readonly allowsCaching = true
+  public readonly allowsCaching = false
 
   public async resolve(
     agentContext: AgentContext,

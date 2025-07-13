@@ -22,10 +22,17 @@ async function run() {
   const resolved = await base.agent.dids.resolve(did1)
   console.log('Resolved DID Document:', resolved.didDocument)
 
-  // 4) Delete the DID using FabricLedgerService
+  // 4) Update DID with a new verkey
+  const ledgerService = base.agent.dependencyManager.resolve(FabricLedgerService)
+  const updateResult = await ledgerService.updateDid(did1, {
+    verkey: 'newVerkey',
+  })
+  const didDoc = await base.agent.dids.resolve(did1)
+  console.log('Resolved DID after update:', didDoc.didDocument)
+
+  // 5) Delete the DID using FabricLedgerService
   const fabricLedgerService = base.agent.dependencyManager.resolve(FabricLedgerService)
   const deleteResult = await fabricLedgerService.deleteDid(did1)
-  console.log('🗑️ Delete result:', deleteResult)
 
 }
 
