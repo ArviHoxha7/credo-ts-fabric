@@ -229,4 +229,30 @@ export class FabricLedgerService {
       return { success: false }
     }
   }
+  public async sendTransaction(payload: { type: string; transaction: any }): Promise<{ success: boolean; message?: string }> {
+    const networkName = this.config.networks[0].network
+    const networkConfig = this.config.networks.find(n => n.network === networkName)
+    if (!networkConfig) throw new Error(`Network config not found for '${networkName}'`)
+    const { baseUrl, token } = networkConfig
+
+    const body = {
+      type: payload.type,
+      network: networkName,
+      transaction: JSON.stringify(payload.transaction),
+    }
+
+    const res = await fetch(`${baseUrl}/CreateTransaction`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: token ?? '',
+      },
+      body: JSON.stringify(body),
+    })
+
+    const data = await res.json() as { message?: string };
+    const success = res.ok;
+
+    return { success, message: data.message };
+  }
 }

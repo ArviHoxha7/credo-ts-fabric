@@ -1,0 +1,1 @@
+export { FabricAnonCredsRegistryService } from './FabricAnonCredsRegistryService'

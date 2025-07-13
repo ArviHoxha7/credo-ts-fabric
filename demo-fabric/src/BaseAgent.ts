@@ -4,6 +4,7 @@ import { askar } from '@openwallet-foundation/askar-nodejs'
 import { agentDependencies } from '@credo-ts/node'
 import { FabricModule } from '@credo-ts/fabric-vdr'
 import { FabricDidRegistrar, FabricDidResolver } from '@credo-ts/fabric-vdr'
+import { FabricAnonCredsRegistryService } from '@credo-ts/fabric-anoncreds'
 
 export class BaseAgent {
   public agent: Agent
@@ -36,6 +37,9 @@ export class BaseAgent {
           resolvers: [ new FabricDidResolver() ],
         }),
         fabric,
+        anancreds: new AskarModule({
+          registers: [ new FabricAnonCredsRegistryService() ],
+        }),
       },
     })
   }

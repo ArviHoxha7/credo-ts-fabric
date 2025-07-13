@@ -1,4 +1,4 @@
-import { injectable, inject } from '@credo-ts/core'
+import { injectable } from '@credo-ts/core'
 import type { AgentContext, DidResolver, DidResolutionResult } from '@credo-ts/core'
 import { FabricLedgerService } from '../ledger/FabricLedgerService'
 

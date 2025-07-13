@@ -1,6 +1,5 @@
 // demo.ts
 import { BaseAgent } from './BaseAgent'
-import { DidResolverService } from '@credo-ts/core'
 import { FabricLedgerService } from '@credo-ts/fabric-vdr'
 
 async function run() {
@@ -18,21 +17,30 @@ async function run() {
   })
   const did1 = didState.did!
   console.log('DID created:', did1)
+  await base.agent.modules.anoncreds.registerSchema({
+  schema: {
+    name: 'TestSchema',
+    version: '1.0',
+    attrNames: ['name', 'age', 'email'],
+    issuerId: 'did:testnet:demo123',
+  }
+})
+
   // 3) Resolve the same DID
-  const resolved = await base.agent.dids.resolve(did1)
-  console.log('Resolved DID Document:', resolved.didDocument)
-
-  // 4) Update DID with a new verkey
-  const ledgerService = base.agent.dependencyManager.resolve(FabricLedgerService)
-  const updateResult = await ledgerService.updateDid(did1, {
-    verkey: 'newVerkey',
-  })
-  const didDoc = await base.agent.dids.resolve(did1)
-  console.log('Resolved DID after update:', didDoc.didDocument)
-
-  // 5) Delete the DID using FabricLedgerService
-  const fabricLedgerService = base.agent.dependencyManager.resolve(FabricLedgerService)
-  const deleteResult = await fabricLedgerService.deleteDid(did1)
+  // const resolved = await base.agent.dids.resolve(did1)
+  // console.log('Resolved DID Document:', resolved.didDocument)
+  //
+  // // 4) Update DID with a new verkey
+  // const ledgerService = base.agent.dependencyManager.resolve(FabricLedgerService)
+  // await ledgerService.updateDid(did1, {
+  //   verkey: 'newVerkey',
+  // })
+  // const didDoc = await base.agent.dids.resolve(did1)
+  // console.log('Resolved DID after update:', didDoc.didDocument)
+  //
+  // // 5) Delete the DID using FabricLedgerService
+  // const fabricLedgerService = base.agent.dependencyManager.resolve(FabricLedgerService)
+  // await fabricLedgerService.deleteDid(did1)
 
 }
 
